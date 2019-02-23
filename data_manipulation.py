@@ -61,7 +61,7 @@ class ImageDataManipulation:
         i = 0
         for file in img_files:
             img = cv2.imread(file)
-            if img.shape[2] > 1:
+            if len(img.shape) > 2 and img.shape[2] > 1:
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             img = cv2.resize(img, (width, height))
             x = img_to_array(img)
