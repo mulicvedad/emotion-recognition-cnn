@@ -27,7 +27,7 @@ class ConvolutionalNN:
             Conv2D(filters=64, kernel_size=(7, 7)))
         model.add(MaxPooling2D())
         model.add(Flatten())
-        model.add(Dense(units=5, activation="softmax"))
+        model.add(Dense(units=5, activation='softmax'))
         model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adam(),
                       metrics=['accuracy'])
         self.model = model
@@ -47,11 +47,11 @@ class ConvolutionalNN:
 
         # serialize model to JSON
         model_json = self.model.to_json()
-        with open(json_filename, "w") as json_file:
+        with open(json_filename, 'w') as json_file:
             json_file.write(model_json)
         # serialize weights to HDF5
         self.model.save_weights(weights_filename)
-        print("Saved model to disk")
+        print('Saved model to disk')
 
     def predict(self, img, num_decimals=4):
         x = self.input_shape
@@ -64,7 +64,7 @@ class ConvolutionalNN:
         if not self.model_ready:
             loaded = self.load_trained_model(self.default_model_path, self.default_model_weights)
         if loaded is False:
-            raise Exception("No trained model is available")
+            raise Exception('No trained model is available')
         return np.round(self.model.predict(x=img), num_decimals)
 
     def load_trained_model(self, json_filename, weights_filename):

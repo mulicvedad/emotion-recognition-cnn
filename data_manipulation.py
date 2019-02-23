@@ -5,7 +5,7 @@ import numpy as np
 from keras.preprocessing.image import img_to_array
 
 # Emotions and labels
-emotions = [("anger", 0), ("happy", 1), ("sadness", 2), ("surprise", 3), ("neutral", 4)]
+emotions = [('anger', 0), ('happy', 1), ('sadness', 2), ('surprise', 3), ('neutral', 4)]
 # Cascade classifier for face recognition
 classifier_path = 'cascade.xml'
 
