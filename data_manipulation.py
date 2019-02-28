@@ -11,10 +11,10 @@ classifier_path = 'cascade.xml'
 
 
 class ImageDataManipulation:
-    def __init__(self, src_folder, dest_folder, cascade_classifier_path=classifier_path,
+    def __init__(self, src_folder, training_imgs_folder, cascade_classifier_path=classifier_path,
                  subfolders=emotions):
         self.img_src_folder = src_folder
-        self.training_data_folder = dest_folder
+        self.training_data_folder = training_imgs_folder
         self.emotions_folders = subfolders
         self.face_recognizer = self.load_face_recognizer(cascade_classifier_path)
 
@@ -35,24 +35,27 @@ class ImageDataManipulation:
                                save_to_file=os.path.join(dest_folder, img))
 
     # Return array of image file names and array of corresponding labels
-    def load_training_data(self, subfolders=None,
-                           num_img_files=1500, root_img_folder=None):
+    def load_training_data(self, root_img_folder=None, subfolders=None):
         if not root_img_folder:
             root_img_folder = self.training_data_folder
         if not subfolders:
             subfolders = self.emotions_folders
-        num_imgs = num_img_files
-        train_files = np.empty((num_imgs, 2), dtype=object)
-        i = 0
+        # num_imgs = num_img_files
+        train_files = []  # np.empty((num_imgs, 2), dtype=object)
+        # i = 0
         for x in subfolders:
             img_files = [f for f in os.listdir(os.path.join(root_img_folder, x[0])) if
                          os.path.isfile(os.path.join(os.path.join(root_img_folder, x[0], f)))]
             for img in img_files:
-                train_files[i][0] = os.path.join(root_img_folder, x[0], img)  # relative file path
-                train_files[i][1] = x[1]  # emotion label
-                i += 1
-        random.shuffle(train_files)  # shuffle the data
-        return train_files[:, 0], train_files[:, 1]
+                rel_path = os.path.join(root_img_folder, x[0], img)  # relative file path
+                label = x[1]  # emotion label
+                train_files.append([rel_path, label])
+                # train_files[i][0] =
+                # train_files[i][1] =
+                # i += 1
+        np_train = np.array(train_files)
+        np_train = np.random.permutation(np_train)
+        return np_train[:, 0], np_train[:, 1]
 
     @staticmethod
     # Prepare training data. Load images from filesystem into array 'dataset'
@@ -90,7 +93,13 @@ class ImageDataManipulation:
     @staticmethod
     def crop_face(image, face_recognizer=None, resize_shape=None, save_to_file=None):
         # To grayscale
-        img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        img_gray = image
+        maks = np.amax(image)
+        if maks <= 1:
+            img_gray = image * 255.
+            img_gray = img_gray.astype(int)
+        if len(image.shape) > 2 and image.shape[2] > 1:
+            img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         if not face_recognizer:
             face_recognizer = ImageDataManipulation.load_face_recognizer()
         faces = face_recognizer.detectMultiScale(
@@ -98,7 +107,7 @@ class ImageDataManipulation:
             scaleFactor=1.1,
             minNeighbors=5,
             minSize=(30, 30),
-            flags=cv2.CASCADE_SCALE_IMAGE
+            flags=cv2.CASCADE_SCALE_IMAGE,
         )
         if len(faces) == 0:
             return None

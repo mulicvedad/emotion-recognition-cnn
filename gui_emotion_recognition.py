@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 from cnn_model import ConvolutionalNN
 
 emo_labels = [('Anger', 'angry'), ('Happiness', 'happy'),
-              ('Sadness', 'sad'), ('Surprise', 'surprised')]
+              ('Sadness', 'sad'), ('Surprise', 'surprised'), ('Neutral', 'neutral')]
 
 
 class PatternRecognitionApp(tk.Frame):
@@ -182,7 +182,7 @@ class PatternRecognitionApp(tk.Frame):
     def apply_emotion_recognition(self):
         try:
             self.set_status(status='Status: Processing...', image=str(self.filename))
-            results = self.nn_model.predict(self.cv2_img)
+            results = self.nn_model.predict([self.cv2_img])
             if results is None:
                 self.set_status(status='No faces found in image')
                 return
@@ -240,7 +240,7 @@ class PatternRecognitionApp(tk.Frame):
 
 def pattern_recognition_app():
     nn_model = ConvolutionalNN()
-    nn_model.load_trained_model('model_cnn.json', 'model_cnn.h5')
+    nn_model.load_trained_model('model_cnn_3.json', 'model_cnn_3.h5')
     root = Tk()
     PatternRecognitionApp(root).set_nn_model(nn_model)
     root.mainloop()
